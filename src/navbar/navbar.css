@@ -1,0 +1,224 @@
+:root {
+    --accent: #22c55e;
+    --accent-2: #16a34a;
+    --fg: #ffffff;
+    --bg: rgba(10,10,10,0.5);
+    --line: rgba(255,255,255,0.06);
+    --danger: rgba(248,113,113,0.12);
+    --surface: rgba(15,15,15,0.96);
+    --surface-line: rgba(255,255,255,0.08);
+    --nav-h: 56px;
+}
+
+.navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    height: var(--nav-h);
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 10.75rem 0 1rem;
+    background: var(--bg);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--line);
+}
+
+.brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 1.55rem;
+    color: var(--fg);
+    text-decoration: none;
+}
+
+.brand:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    border-radius: 8px;
+}
+
+.logo {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: linear-gradient(to right, var(--accent), var(--accent-2));
+    box-shadow: 0 0 12px rgba(34,197,94,0.25);
+    position: relative;
+    display: inline-block;
+}
+
+.logo::after {
+    content: "";
+    position: absolute;
+    left: 7px;
+    top: 9px;
+    width: 12px;
+    height: 6px;
+    border-left: 2px solid #0a0a0a;
+    border-bottom: 2px solid #0a0a0a;
+    transform: rotate(-45deg);
+}
+
+.brand-text {
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    font-size: 2.05rem;
+}
+
+.nav-right {
+    display: inline-flex;
+    align-items: center;
+    gap: 0rem;
+}
+.icon-btn {
+    position: relative;
+    display: inline-grid;
+    place-items: center;
+    right: 20px;
+    width: 50px;
+    height: 40px;
+    border-radius: 10px;
+    border: none;
+    outline: none;
+    background: transparent;
+    color: rgba(255,255,255,0.85);
+    cursor: pointer;
+    text-decoration: none;
+    transition: transform 0.15s ease, background 0.2s ease, box-shadow 0.2s ease, color 0.2s ease;
+}
+
+.icon-btn:hover {
+    color: var(--fg);
+    background: rgba(34,197,94,0.34);
+    box-shadow: 0 0 12px rgba(34,197,94,0.35);
+}
+
+.icon-btn.active {
+    background: rgba(34,197,94,0.12);
+    box-shadow: 0 0 12px rgba(34,197,94,0.49);
+}
+.icon-btn:active {
+    transform: scale(0.98);
+}
+
+.icon-btn:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
+.icon-btn.danger:hover {
+    background: var(--danger);
+    box-shadow: 0 0 12px rgba(248,113,113,0.35);
+}
+
+.icon {
+    width: 22px;
+    height: 22px;
+    display: block;
+}
+
+.badge-btn .badge {
+    position: absolute;
+    top: 2px;
+    right: 6px;
+    width: 16px;
+    min-width: 0;
+    height: 18px;
+    padding: 0;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #0a0a0a;
+    font-size: 10px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 10px rgba(34,197,94,0.45);
+}
+
+.notif {
+    position: relative;
+}
+
+.card-surface {
+    background: var(--surface);
+    border: 1px solid var(--surface-line);
+    border-radius: 12px;
+    box-shadow: 
+        0 10px 30px rgba(0,0,0,0.5),
+        0 0 0 1px rgba(34,197,94,0.08) inset;
+    backdrop-filter: blur(8px);
+}
+
+.notif-popover {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    width: 320px;
+    max-height: 60vh;
+    overflow: auto;
+    animation: pop-in 0.14s ease;
+}
+
+@keyframes pop-in {
+    from { 
+        opacity: 0;
+        transform: translateY(-6px) scale(0.90);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.notif-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 0.85rem;
+    border-bottom: 1px solid var(--surface-line);
+    font-weight: 700;
+    color: var(--fg);
+}
+
+.notif-close {
+    appearance: none;
+    border: none;
+    background: transparent;
+    color: rgba(255,255,255,0.75);
+    font-size: 20px;
+    line-height: 1;
+    border-radius: 8px;
+    padding: 2px 6px;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+}
+
+.notif-close:hover {
+    color: #fff;
+    background: rgba(255,255,255,0.08);
+}
+
+.notif-empty {
+    display: grid;
+    place-items: center;
+    gap: 0.35rem;
+    padding: 1.1rem 0.9rem 1.2rem;
+    color: rgba(255,255,255,0.9);
+}
+
+.notif-empty-icon {
+    font-size: 20px;
+}
+
+.notif-empty-text {
+    opacity: 0.9;
+}
+
+@media (max-width: 300px) {
+    .brand-text {display: none; }
+}

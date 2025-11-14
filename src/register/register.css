@@ -1,0 +1,330 @@
+body {
+    margin: 0;
+    font-family: sans-serif;
+}
+
+.register-container {
+    min-height: 100vh;
+    width: 100vw;
+    display: grid;
+    place-items: center;
+    background: #0a0a0a;
+    color: white;
+    position: relative;
+    overflow: hidden;
+}
+
+.register-form {
+    position: relative;
+    width: 92%;
+    max-width: 400px;
+    padding: 2rem;
+    border-radius: 1rem;
+    background: rgba(0, 0, 0, 0.0);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.0);
+}
+
+.register-title {
+    text-align: center;
+    font-size: 1.8rem;
+    font-weight: bold;
+    margin-bottom: 1.5rem;
+}
+
+.register-fields {
+    display: grid;
+    gap: 1rem;
+}
+
+.field .input-wrap { 
+    position: relative;
+    width: 100%;
+}
+
+.register-fields input {
+    width: 100%;
+    box-sizing: border-box;
+    border-radius: 0.5rem;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 0.6rem 0.8rem;
+    color: white;
+    outline: none;
+    transition: 0.2s;
+}
+
+.register-fields input:focus {
+    border-color: #22c55e;
+    box-shadow: 0 0 12px rgba(34, 197, 94, 0.4);
+}
+
+.field.valid input { 
+    border-color: rgba(134,239,172,0.7);
+}
+.field.invalid input { 
+    border-color: rgba(248, 113, 133, 0.8);
+}
+
+.field-hint { 
+    margin-top: 0.35rem;
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.55);
+}
+
+.field-error { 
+    margin-top: 0.35rem;
+    font-size: 0.9rem;
+    color: #f87171;
+}
+
+.pw-criteria {
+    margin: 0.35rem 0 0;
+    padding-left: 1rem;
+    font-size: 0.85rem;
+}
+
+.pw-criteria li {
+    margin: 0.15rem 0; 
+    list-style: disc;
+}
+
+.pw-criteria .ok {
+    color: #86efac;
+}
+
+.pw-criteria .bad {
+    color: rgba(255,255,255,0.7);
+}
+
+.password-field input {
+    padding-right: calc(0.8rem + 28px);
+}
+
+.password-field .eye-toggle {
+    position: absolute;
+    right: 0rem;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 18px;
+    width: 28px;
+    z-index: 1;
+    border: none;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.85);
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    border-radius: 6px;
+    transition: background .2s, color .2s, transform .2s;
+}
+
+.password-field .eye-toggle:hover { 
+    background: rgba(255, 255, 255, 0.08);
+    color:#fff;
+}
+
+.password-field .eye-toggle:active { 
+    transform:translateY(-50%) scale(.98); 
+}
+
+.eye {
+    position: absolute;
+    inset:0;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    box-sizing: border-box;
+    transform-origin: center;
+    transition: opacity 150ms ease, transform 150ms ease;
+}
+
+.eye-open::before,
+.eye-open::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+}
+
+.eye-open::before {
+    width: 100%;
+    height: 65%;
+    border: 2px solid currentColor;
+    border-top-color: transparent;
+    border-bottom-color: transparent;
+    border-radius: 100% / 70%;
+}
+
+.eye-open::after {
+    width: 6px;
+    height: 6px;
+    background: currentColor;
+    box-shadow: 0 0 6px rgba(255, 255, 255, 0.5);
+}
+
+.eye-closed::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 100%;
+    height: 2px;
+    background: currentColor;
+    transform: translateY(-50%) rotate(-15deg);
+    border-radius: 2px;
+}
+
+.eye-closed::after {
+    content: "";
+    position: absolute;
+    inset:0;
+    border: 2px solid currentColor;
+    border-radius: 100% / 70%;
+    opacity: 0.4;
+}
+
+.eye-open{ opacity: 0; transform: scale(0.9); }
+.eye-closed{ opacity: 1; transform: scale(1); }
+.eye-toggle.shown .eye-open{ opacity: 1; transform: scale(1); }
+.eye-toggle.shown .eye-closed{ opacity: 0; transform: scale(0.9); }
+
+.register-button {
+    margin-top: 1.5rem;
+    width: 100%;
+    border-radius: 0.5rem;
+    padding: 0.7rem;
+    font-weight: 600;
+    background: linear-gradient(to right, #22c55e, #16a34a);
+    color: black;
+    border: none;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.register-button:hover {
+    filter: brightness(1.1);
+    box-shadow: 0 0 14px rgba(34, 197, 94, 0.6);
+}
+
+.register-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.register-links {
+    margin-top: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.register-links a {
+    color: rgba(248, 113, 113, 0.7);
+    text-decoration: none;
+    transition: 0.2s;
+}
+
+.register-links a:hover {
+    color: white;
+}
+
+.register-links a span {
+    color: #22c55e;
+    transition: 0.2s;
+}
+
+.register-links a:hover span {
+    color: #86efac;
+    text-shadow: 0 0 8px rgba(34, 197, 94, 0.6);
+}
+
+.register-error {
+    margin-top: 1rem;
+    color: #f87171;
+    background: rgba(248, 113, 113, 0.2);
+    border: 1px solid rgba(248, 113, 113, 0.2);
+    border-radius: 0.5rem;
+    padding: 0.5rem;
+    font-size: 0.9rem;
+}
+
+@property --a {
+    syntax: '<angle>';
+    initial-value: 0deg;
+    inherits: false;
+}
+
+.card-neon::before {
+    content: "";
+    position: absolute;
+    inset: -3px;
+    padding: 3px;
+    border-radius: 1rem;
+    background: 
+        conic-gradient( from var(--a, 0deg),
+            rgba(255, 255, 255, 0) 340deg,
+            rgba(255, 255, 255, 0.95) 360deg
+        ),
+        conic-gradient(from 0deg, rgba(255,255,255,0.12) 0 360deg);
+
+    mask: linear-gradient(#000 0 0) content-box,
+                    linear-gradient(#000 0 0);
+    -webkit-mask: linear-gradient(#000 0 0) content-box,
+                    linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+
+    animation: neon-spin 4s linear infinite;
+
+    filter: drop-shadow(0 0 14px rgba(255,255,255,0.55));
+    pointer-events: none;            
+}
+
+@keyframes neon-spin {
+    to { --a: 360deg;}
+}
+
+@supports not ((mask: linear-gradient(#000 0 0))) {
+    .card-neon::before { display: none; }
+    .card-neon {box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.15 ) inset;}
+}
+
+.success-box { 
+    text-align: center;
+}
+.success-icon {
+    margin: 0 auto 1rem;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    border: 3px solid #86efac;
+    position: relative;
+    box-shadow: 0 0 12px rgba(134,239,172,0.5);
+}
+.success-icon::after {
+    content: "";
+    position: absolute;
+    left: 14px;
+    top: 20px;
+    width: 24px;
+    height: 12px;
+    border-left: 3px solid #86efac;
+    border-bottom: 3px solid #86efac;
+    transform: rotate(-45deg);
+}
+.success-text {
+    margin: 0.5rem 0 1rem;
+    color: rgba(255, 255, 255, 0.9);
+    line-height: 1.5;
+}
+.success-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    align-items: center;
+}

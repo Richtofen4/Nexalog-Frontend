@@ -1,0 +1,147 @@
+.server-page{
+  --bg:#0d0d0d; --fg:#f5f5f5; --muted:rgba(255,255,255,.6);
+  --line:rgba(255,255,255,.08);
+  --bg-card:#151515; --bg-raise:#1a1a1a;
+  --accent:#22c55e; --accent-2:#16a34a;
+
+  min-height:100vh; background:var(--bg); color:var(--fg);
+}
+
+.server-page .server-grid{
+
+  width: min(1490px, 98vw);
+  max-width: 1500px;
+
+  min-height: calc(100vh - 80px);
+
+  margin:calc(56px + 10px) auto 40px;
+  padding: 0 20px;
+
+  display: grid;
+  grid-template-columns: 300px minmax(680px, 1fr) 280px;
+  gap: 22px;
+}
+
+@media (min-width: 1700px){
+  .server-page .server-grid{
+    width: min(1700px, 96vw);
+    max-width: 1700px;
+    grid-template-columns: 260px minmax(900px, 1fr) 280px;
+  }
+}
+
+@media (max-width:1100px){
+  .server-page .server-grid{ grid-template-columns: 1fr; }
+}
+
+.server-page .card{ border:1px solid var(--line); border-radius:14px; padding:16px; background:var(--bg-card); position:relative; }
+.server-page .card-neon::before{ content:""; position:absolute; inset:-2px; border-radius:20px; padding:3px;
+  background:conic-gradient(from var(--a,0deg), rgba(34,197,94,.85) 0 10deg, transparent 20deg 360deg),
+             linear-gradient(rgba(255,255,255,.12), rgba(255,255,255,.12));
+  mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor; mask-composite:exclude;
+  filter:drop-shadow(0 0 10px rgba(34,197,94,.35));
+  pointer-events:none; animation:server-spin 5s linear infinite;
+}
+@keyframes server-spin{ to{ --a:360deg; } }
+
+.server-page .sect-head{ display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+.server-page .sect-head h2{ margin:0; }
+
+.server-page .btn{
+  background:linear-gradient(90deg, var(--accent), var(--accent-2));
+  color:#0b0b0b; border:none; border-radius:12px; padding:8px 12px; font-weight:700; cursor:pointer;
+}
+.server-page .btn.ghost{ background:transparent; color:var(--fg); border:1px solid var(--line); }
+.server-page .btn.danger{ background:rgba(248,113,113,.12); color:#fecaca; border:1px solid rgba(248,113,113,.35); }
+.server-page .btn.sm{ padding:6px 10px; font-size:14px; display:inline-flex; align-items:center; gap:8px; }
+
+.server-page .icon-btn{
+  width:34px; height:34px; border-radius:10px; border:1px solid var(--line);
+  background:var(--bg-raise); color:var(--fg); display:grid; place-items:center;
+}
+
+/* left – kanały */
+.server-page .channel-new{ display:grid; grid-template-columns:1fr auto; gap:8px; margin-bottom:12px; }
+.server-page .channel-new input{
+  border:1px solid var(--line); border-radius:10px; padding:8px 10px; background:var(--bg-raise); color:var(--fg);
+}
+.server-page .channels-list{ display:grid; gap:6px; }
+.server-page .channel-row{
+  display:grid; grid-template-columns:1fr auto; gap:10px; align-items:center;
+  border:1px solid var(--line); border-radius:10px; padding:8px 10px; background:var(--bg-card);
+}
+.server-page .channel-row .ch-name{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.server-page .channel-row .ch-actions{ display:flex; gap:6px; }
+.server-page .rename-row{ display:grid; grid-template-columns:1fr auto auto; gap:6px; }
+.server-page .rename-row input{
+  border:1px solid var(--line); border-radius:10px; padding:8px 10px; background:var(--bg-raise); color:var(--fg);
+}
+
+/* środek */
+.server-page .center-placeholder{ border:1px dashed var(--line); border-radius:12px; padding:16px; }
+
+/* prawa – użytkownicy */
+.server-page .srv-title{ display:flex; align-items:center; gap:12px; }
+.server-page .srv-title img{ width:44px; height:44px; border-radius:12px; object-fit:cover; }
+.server-page .owner-pill{
+  margin-top:4px; display:inline-flex; align-items:center; gap:6px;
+  padding:4px 10px; border-radius:999px; border:1px solid var(--line);
+  background:rgba(34,197,94,.10); color:#86efac; font-size:12px; font-weight:700;
+}
+
+.server-page .invite-box{ margin:10px 0 14px; }
+.server-page .invite-box .row{ display:flex; align-items:center; gap:8px; }
+.server-page .invite{ background:var(--bg-raise); border:1px solid var(--line); border-radius:10px; padding:6px 10px; }
+
+.server-page .members-list{ display:grid; gap:6px; }
+.server-page .member-row{
+  display:grid; grid-template-columns:auto 1fr auto; align-items:center; gap:10px;
+  border:1px solid var(--line); border-radius:10px; padding:8px 10px; background:var(--bg-card);
+}
+.server-page .member-row .avatar{ width:36px; height:36px; border-radius:50%; object-fit:cover; }
+.server-page .member-row .name{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+.server-page .muted{ color:var(--muted); }
+.server-page .err{ color:#f87171; }
+/*chat */
+.server-page .chat-wrap{ display:flex; flex-direction:column; height:560px; }
+.server-page .chat-header{ margin-bottom:8px; }
+.server-page .chat-list{
+  flex:1; overflow:auto; border:1px solid var(--line);
+  border-radius:12px; padding:10px; background:var(--bg-raise);
+  display:flex; flex-direction:column; gap:10px;
+}
+.server-page .load-older{ align-self:center; }
+
+.server-page .msg-row{ display:grid; grid-template-columns:auto 1fr; gap:10px; }
+.server-page .msg-row.mine{ grid-template-columns:1fr auto; }
+.server-page .msg-row .avatar{ width:32px; height:32px; border-radius:50%; object-fit:cover; }
+.server-page .msg-row.mine .avatar{ order:2; }
+.server-page .msg-row .bubble{
+  border:1px solid var(--line); border-radius:12px; padding:8px 10px; background:var(--bg-card);
+}
+.server-page .msg-row.mine .bubble{ background:#0f2217; border-color:rgba(34,197,94,.25); }
+.server-page .msg-row .meta{ display:flex; gap:10px; font-size:12px; color:var(--muted); margin-bottom:4px; }
+.server-page .msg-row .author{ font-weight:700; color:var(--fg); }
+.server-page .composer{ margin-top:10px; display:grid; grid-template-columns:1fr auto; gap:8px; }
+.server-page .composer textarea{
+  min-height:44px; max-height:140px; resize:vertical;
+  border:1px solid var(--line); border-radius:10px; padding:10px; background:var(--bg-card); color:var(--fg);
+}
+
+/* kanały */
+.server-page .channel-row.is-active{
+  border-color: rgba(34,197,94,.45);
+  box-shadow: 0 0 0 1px rgba(34,197,94,.25) inset;
+  background: #0f2217;
+  cursor: default;
+}
+.server-page .channel-row{ cursor:pointer; }
+.server-page .channel-row .rename-row{ cursor:default; }
+
+.server-page .msg-row .bubble .text{
+  white-space: pre-wrap;
+  word-break: break-word;
+}

@@ -1,0 +1,550 @@
+:root{
+  /* PALETA (tylko kolory) */
+  --bg:#0d0d0d;            /* tło strony */
+  --bg-card:#151515;       /* tło kart/list/wierszy */
+  --bg-raise:#1a1a1a;      /* delikatnie podniesione elementy (pager, chipy) */
+  --line:rgba(255,255,255,.08);
+
+  --fg:#f5f5f5;
+  --muted:rgba(255,255,255,.6);
+
+  --accent:#22c55e;
+  --accent-2:#16a34a;
+}
+
+/* ===== LAYOUT ===== */
+html, body { background:var(--bg); color:var(--fg); }
+.home-bg{ min-height:100vh; background:var(--bg); }
+
+.home-page{
+  max-width:1200px;
+  margin:calc(56px + 10px) auto 40px;
+  padding:0 26px;
+  color:var(--fg);
+  display:grid;
+  grid-template-columns:320px 1fr;
+  gap:24px;
+}
+@media (max-width:980px){ .home-page{ grid-template-columns:1fr; } }
+
+/* ===== CARD ===== */
+.home-page .card{
+  position:relative;
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:18px;
+  background:var(--bg-card);           /* jednolite tło kart */
+}
+
+/* neon obwódka — bez zmian (to tylko efekt) */
+.home-page .card-neon::before{
+  content:""; position:absolute; inset:-2px; border-radius:20px; padding:3px;
+  background:
+    conic-gradient(from var(--a,0deg), rgba(34,197,94,.85) 0 8deg, transparent 20deg 360deg),
+    linear-gradient(rgba(255,255,255,.12), rgba(255,255,255,.12));
+  mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor; mask-composite:exclude;
+  filter:drop-shadow(0 0 10px rgba(34,197,94,.35));
+  pointer-events:none;
+  animation:spin 5s linear infinite;
+}
+@keyframes spin{ to{ --a:360deg; } }
+
+.home-page .muted{ color:var(--muted); }
+.home-page .err{ color:#f87171; }
+.home-page .ok{ color:#86efac; }
+
+/* ===== LEWA KOLUMNA (znajomi) ===== */
+.friends-head{
+  position:relative; display:flex; align-items:center; gap:12px;
+  min-height:44px; margin-bottom:10px;
+}
+.friends-head h2{ margin:0; }
+
+/* Zakładki */
+.home-page .home-tabs{ display:flex; gap:8px; margin:30px 0 12px 0; flex-wrap:wrap; }
+.home-page .home-tab{
+  display:inline-flex; align-items:center; gap:8px;
+  padding:8px 10px; border:1px solid var(--line); border-radius:10px;
+  background:transparent; color:var(--fg); cursor:pointer;
+}
+.home-page .home-tab.is-active{ border-color:var(--accent); box-shadow:0 0 10px rgba(34,197,94,.25); }
+.home-page .home-tab-ico{ opacity:.9; }
+
+/* Lista znajomych */
+.home-page .home-friends{ display:grid; gap:5px; }
+
+/* jest — 3 kolumny: [lewo] [nazwa] [pigułka po prawej] */
+.home-page .friend-row{
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr auto; /* <— 3 kolumny */
+  gap: 12px; align-items: center;
+  padding: 10px;
+  min-height: 72px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--bg-card);
+}
+
+.home-page .friend-right{
+  position: static;
+}
+
+/* te dwie linijki zostają jak są (ważne dla elipsy) */
+.home-page .friend-main{ min-width: 0; }
+.home-page .friend-name{ white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.home-page .friend-row:hover{ border-color:var(--accent); cursor:pointer; }
+
+.home-page .friend-left{
+  display: flex;                 /* <— zamiast grida */
+  align-items: center;
+  gap: 8px;
+  min-width: 120px;              /* niech ma miękkie minimum */
+}
+.home-page .friend-avatar{ width:48px; height:48px; border-radius:50%; object-fit:cover; }
+
+.home-page .friend-chips{
+  display: flex;                 /* zawsze w poziomie */
+  gap: 6px;
+}
+.home-page .chip-btn{
+  width:28px; height:28px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  border:1px solid var(--line);
+  background:var(--bg-raise);          /* zamiast półprzezroczystości */
+  color:var(--fg);
+  transition:transform .15s ease, box-shadow .15s ease, border-color .15s ease, background .15s ease;
+}
+.home-page .chip-btn:hover{ transform:translateY(-1px); border-color:var(--accent); box-shadow:0 0 0 2px rgba(34,197,94,.18); }
+.home-page .chip-btn.chip-disabled{ opacity:.55; cursor:not-allowed; transform:none; box-shadow:none; }
+
+.home-page .chip-ok{
+  background:linear-gradient(90deg, var(--accent), var(--accent-2));
+  color:#0a0a0a; border-color:transparent;
+}
+.home-page .chip-warn{ background:rgba(248,113,113,.12); border-color:rgba(248,113,113,.35); color:#fecaca; }
+.home-page .chip-muted{ background:var(--bg-raise); color:var(--muted); }
+
+.home-page .friend-main{ min-width:0; }
+.home-page .friend-name{
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Dodaj znajomego */
+.home-page .add-box{ display:grid; gap:10px; }
+.home-page .search{
+  display:flex; align-items:center; gap:8px;
+  border:1px solid var(--line); border-radius:10px; padding:6px 10px;
+  background:var(--bg-raise);
+}
+.home-page .search input{
+  border:none; outline:none; background:transparent; color:var(--fg); width:100%;
+}
+
+/* ===== PAGER (wspólny) ===== */
+.home-page .pager{
+  display:flex; align-items:center; gap:20px;
+  padding:6px 12px; border:1px solid var(--line);
+  border-radius:999px; background:var(--bg-raise);   /* spójne „kapsuły” */
+  box-shadow:0 4px 20px rgba(0,0,0,.25);
+}
+.home-page .icon-btn{
+  width:36px; height:36px; left: 0px; border-radius:10px; border:1px solid var(--line);
+  background:var(--bg-raise); color:var(--fg);
+  display:flex; align-items:center; justify-content:center;
+  transition:transform .15s, box-shadow .15s, border-color .15s;
+}
+.home-page .icon-btn:hover{ transform:translateY(-1px); border-color:var(--accent); box-shadow:0 0 0 2px rgba(34,197,94,.18); }
+.home-page .icon-btn:disabled{ opacity:.45; cursor:not-allowed; transform:none; box-shadow:none; }
+.home-page .pager .muted{ font-weight:600; letter-spacing:.2px; }
+
+/* ===== PRAWA KOLUMNA (serwery) ===== */
+.home-page .servers-head{
+  position:relative; display:flex; align-items:center;
+  min-height:44px; margin-bottom:10px; max-height: 44px;
+}
+.home-page .servers-head .pager{
+  position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+}
+.home-page .home-right{
+  height: 500px;  /* karta serwerów ma wysokość wg treści */
+}
+
+.home-page .servers-grid{ display:grid; grid-template-columns:repeat(3, 1fr); gap:14px; }
+@media (max-width:1100px){ .home-page .servers-grid{ grid-template-columns:repeat(2, 1fr); } }
+@media (max-width:620px){  .home-page .servers-grid{ grid-template-columns:1fr; } }
+
+.home-page .server-card{
+  border:1px solid var(--line); border-radius:14px; padding:12px;
+  background:var(--bg-card);           /* jednolite jak friend-row */
+  display:grid; grid-template-columns:64px 1fr auto; align-items:center; gap:12px;
+}
+.home-page .server-card img{ width:64px; height:64px; object-fit:cover; border-radius:12px; }
+.home-page .server-card h3{ margin:0 0 2px 0; }
+.home-page .server-meta{ min-width:0; }
+.home-page .server-meta h3{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+/* ===== BUTTONY ===== */
+.home-page .btn{
+  background:linear-gradient(90deg, var(--accent), var(--accent-2));
+  color:#0b0b0b; border:none; border-radius:12px; padding:8px 12px; font-weight:700; cursor:pointer;
+}
+.home-page .btn.ghost{ background:transparent; color:var(--fg); border:1px solid var(--line); }
+
+/* ===== FAB + MODAL ===== */
+.home-page .fab{
+  position:absolute; right:16px; bottom:16px;
+  width:44px; height:44px; border-radius:50%;
+  border:1px solid var(--line); background:var(--bg-raise);
+  display:flex; align-items:center; justify-content:center; color:var(--fg);
+  box-shadow:0 4px 20px rgba(0,0,0,.4);
+}
+
+/* === MODAL (portal) — tylko kosmetyka wg Twoich próśb === */
+/* tło: przyciemnienie + lekki blur, wyśrodkowane */
+.modal-backdrop{
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.6);
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
+  display: grid;
+  place-items: center;              /* idealnie na środku */
+  z-index: 1000;
+}
+
+/* karta modala — bez wewnętrznego scrollbara */
+.modal{
+  position: relative;
+  width: min(560px, 92vw);
+  /* USUNIĘTO max-height/overflow: powodowały własny scrollbar */
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 28px 28px 22px;
+  background:
+    radial-gradient(80% 70% at 50% 0%, rgba(34,197,94,.06), transparent 60%),
+    linear-gradient(#141414, #121212);
+  box-shadow:
+    0 12px 40px rgba(0,0,0,.55),
+    0 0 0 1px rgba(255,255,255,.02) inset;
+  color: var(--fg);
+}
+
+/* neonowa obwódka */
+.modal.card-neon::before{
+  content:"";
+  position:absolute;
+  inset:-2px;
+  border-radius: 22px;
+  padding: 4px;
+  background:
+    conic-gradient(from var(--a,0deg), rgba(34,197,94,.85) 0 14deg, transparent 20deg 360deg),
+    linear-gradient(rgba(255,255,255,.10), rgba(255,255,255,.10));
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor; mask-composite: exclude;
+  filter: drop-shadow(0 0 12px rgba(34,197,94,.35));
+  pointer-events: none;
+  animation: modal-ring 5s linear infinite;
+}
+@keyframes modal-ring { to { --a: 360deg; } }
+
+/* nagłówek */
+.modal h3{
+  margin: 0 0 18px 0;
+  font-size: 28px;
+  line-height: 1.2;
+}
+
+/* formularz */
+.modal .stack{ display:grid; gap: 14px; max-width: 520px; }
+.modal .field{ display:grid; gap:6px; }
+.modal .field-label{ font-weight:700; color: var(--fg); }
+
+.modal input[type="text"],
+.modal input[type="file"],
+.modal textarea{
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: rgba(255,255,255,.04);
+  color: var(--fg);
+  outline: none;
+  transition: border-color .2s, box-shadow .2s;
+}
+.modal input:focus,
+.modal textarea:focus{
+  border-color: var(--accent);
+  box-shadow: 0 0 12px rgba(34,197,94,.35);
+}
+
+.modal .preview img{
+  width: 84px; height: 84px; object-fit: cover; border-radius: 12px;
+  border: 2px solid rgba(255,255,255,.2);
+  box-shadow: 0 0 14px rgba(34,197,94,.28);
+}
+
+/* krzyżyk — PRAWY górny róg (poprawka) */
+.modal .modal-close{
+  position: absolute;
+  right: 12px;
+  left: auto;
+  top: 12px;
+  width: 36px; height: 36px;
+  display:flex; align-items:center; justify-content:center;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: rgba(255,255,255,.06);
+  color: var(--fg);
+  box-shadow: 0 0 0 2px rgba(34,197,94,.12);
+  transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+}
+.modal .modal-close:hover{
+  transform: translateY(-1px);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(34,197,94,.18);
+}
+
+/* dół formularza */
+.modal .row-right{ display:flex; justify-content:flex-end; margin-top: 6px; }
+.modal .btn{
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  color: #0b0b0b;
+  border: none;
+  border-radius: 20px;
+  padding: 10px 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.modal .btn:disabled{ opacity:.6; cursor:not-allowed; }
+
+/* ===== Nagłówek znajomych + pager ===== */
+.home-page .friends-head{ display:flex; flex-direction:column; gap:8px; margin-bottom:6px; }
+.home-page .friends-title{ display:flex; align-items:center; gap:12px; }
+.home-page .friends-pager{ align-items:center; }
+
+/* Prawy bok nagłówka serwerów — „Dołącz” */
+.home-page .servers-actions{
+  margin-left:auto;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
+/* Mały wariant przycisku */
+.home-page .btn.sm{
+  padding:6px 10px;
+  font-size:14px;
+  line-height:1;
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+}
+
+/* ===== CZAT (prawa karta po kliknięciu znajomego) ===== */
+.chat-box{
+  display: grid;
+  grid-template-rows: 1fr auto;
+  height: 100%;
+  min-height: 380px;
+  border-top: 1px solid var(--line);
+  margin-top: 10px;
+}
+
+.chat-messages{
+  overflow-y: auto;
+  padding: 10px 6px;
+  display: grid;
+  gap: 8px;
+}
+
+.msg{ display: flex; }
+.msg.other{ justify-content: flex-start; }
+.msg.me{ justify-content: flex-end; }
+
+.msg .bubble{
+  max-width: 72%;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--bg-card);
+  color: var(--fg);
+  box-shadow: 0 2px 10px rgba(0,0,0,.25);
+}
+.msg.me .bubble{
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  color: #0b0b0b;
+  border-color: transparent;
+}
+
+.msg .bubble .time{
+  display: inline-block;
+  margin-top: 6px;
+  font-size: 12px;
+  opacity: .7;
+}
+
+.chat-input{
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  padding: 10px 6px 0 6px;
+  border-top: 1px solid var(--line);
+}
+.chat-input input{
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 10px 12px;
+  background: var(--bg-raise);
+  color: var(--fg);
+  outline: none;
+}
+.chat-input input:focus{
+  border-color: var(--accent);
+  box-shadow: 0 0 10px rgba(34,197,94,.25);
+}
+.chat-head{ display:flex; align-items:center; gap:10px; }
+.chat-peer{ display:flex; align-items:center; gap:10px; }
+.chat-body{ display:grid; grid-template-rows:1fr auto; height:60vh; margin-top:8px; }
+.chat-list{ overflow:auto; display:grid; gap:8px; padding:8px 4px; }
+.chat-row{ display:flex; }
+.chat-row.other{ justify-content:flex-start; }
+.chat-row.me{ justify-content:flex-end; }
+.chat-bubble{ max-width:72%; padding:10px 12px; border:1px solid var(--line); border-radius:12px; background:var(--bg-card); }
+.chat-row.me .chat-bubble{ background:linear-gradient(90deg,var(--accent),var(--accent-2)); color:#0b0b0b; border-color:transparent; }
+.chat-bubble .time{ display:block; margin-top:4px; font-size:12px; opacity:.7; }
+.chat-input-row{ display:grid; grid-template-columns:1fr auto; gap:8px; margin-top:8px; }
+
+/* ——— Lepsze układanie chipów i rozmiar ——— */
+.home-page .friend-chips.row { flex-direction: row; }
+.home-page .chip-btn{ width:34px; height:34px; position:relative; }
+
+/* ——— Tooltip na chipie (bierze tekst z data-label) ——— */
+.home-page .chip-btn[data-label]::after{
+  content: attr(data-label);
+  position:absolute; left:42px; top:50%; transform:translateY(-50%) translateX(-2px);
+  background:var(--bg-raise);
+  border:1px solid var(--line);
+  color:var(--fg);
+  padding:4px 8px; border-radius:10px; font-size:12px; white-space:nowrap;
+  opacity:0; pointer-events:none; transition:opacity .15s ease, transform .15s ease;
+  box-shadow:0 6px 20px rgba(0,0,0,.35);
+}
+.home-page .chip-btn:hover::after{ opacity:1; transform:translateY(-50%) translateX(0); }
+
+/* ——— Dodatkowy wariant dla „zablokował Cię” ——— */
+.home-page .chip-bad{
+  background:rgba(248,113,113,.10);
+  border-color:rgba(248,113,113,.45);
+  color:#fecaca;
+}
+
+/* ——— Etykiety statusu (pigułki po prawej) ——— */
+.home-page .state-tag{
+  display:inline-flex; align-items:center; gap:6px;
+  padding:6px 10px; border-radius:999px; border:1px solid var(--line);
+  font-size:12px; font-weight:700;
+  background:var(--bg-raise); color:var(--muted);
+
+  max-width: 200px;           /* <— limit szerokości pigułki */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.home-page .state-tag.is-incoming,
+.home-page .state-tag.is-you-blocked{
+  background:rgba(34,197,94,.10);
+  border-color:rgba(34,197,94,.35);
+  color:#86efac;
+}
+.home-page .state-tag.is-outgoing{
+  background:var(--bg-raise); color:var(--muted);
+}
+.home-page .state-tag.is-blocked-me{
+  background:rgba(248,113,113,.08);
+  border-color:rgba(248,113,113,.40);
+  color:#fecaca;
+}
+
+/* ——— Delikatne obwódki wierszy dla blokad ——— */
+.home-page .friend-row.you-blocked{ border-color:rgba(34,197,94,.45); }
+.home-page .friend-row.blocked-me{ border-color:rgba(248,113,113,.45); }
+
+/* ——— Karta znajomego: avatar | [nick + pasek akcji] ——— */
+.home-page .friend-card{
+  position: relative;
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  grid-template-rows: auto auto;   /* 1: tytuł, 2: footer */
+  column-gap: 12px;
+  row-gap: 6px;
+  align-items: center;
+  padding: 10px;
+  min-height: 72px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--bg-card);
+}
+.home-page .friend-card:hover{ border-color: var(--accent); cursor: pointer; }
+.home-page .friend-card.you-blocked{ border-color: rgba(34,197,94,.45); }
+.home-page .friend-card.blocked-me{ border-color: rgba(248,113,113,.45); }
+
+.home-page .friend-card .friend-avatar{
+  grid-row: 1 / span 2;
+  width: 48px; height: 48px; border-radius: 50%; object-fit: cover;
+}
+
+.home-page .friend-card .friend-title{ min-width: 0; }
+.home-page .friend-card .friend-name{
+  font-weight: 700;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+/* Pasek akcji / status pod nickiem */
+.home-page .friend-card .friend-footer{
+  grid-column: 2;
+  display: flex; align-items: center; gap: 8px;
+}
+
+/* Przyciski akcji */
+.home-page .action-btn{
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 10px; border-radius: 10px;
+  border: 1px solid var(--line); background: var(--bg-raise); color: var(--fg);
+  font-weight: 700; line-height: 1;
+  transition: transform .15s, box-shadow .15s, border-color .15s;
+}
+.home-page .action-btn:hover{
+  transform: translateY(-1px);
+  border-color: var(--accent); box-shadow: 0 0 0 2px rgba(34,197,94,.18);
+}
+.home-page .action-btn.ok{
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  color: #0b0b0b; border-color: transparent;
+}
+.home-page .action-btn.danger{
+  background: rgba(248,113,113,.12);
+  border-color: rgba(248,113,113,.35);
+  color: #fecaca;
+}
+
+/* Statusy (bez akcji) */
+.home-page .status{
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 10px; border-radius: 10px; border: 1px solid var(--line);
+  max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.home-page .status.muted{ background: var(--bg-raise); color: var(--muted); }
+.home-page .status.danger{
+  background: rgba(248,113,113,.08);
+  border-color: rgba(248,113,113,.40);
+  color: #fecaca;
+}
