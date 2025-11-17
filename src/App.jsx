@@ -8,6 +8,7 @@ import Login from './login/login';
 import ForgotPassword from './forgotPassword/forgotPassword';
 import Profile from './profile/profile';
 import ServerView from './server/server';
+import Admin from './admin/AdminUsers';
 
 import PrivateRoutes from './components/PrivateRoute';
 import PublicRoutes from './components/PublicRoute';
@@ -58,6 +59,14 @@ function App() {
         element={
           <PrivateRoutes>
             <ServerView />
+          </PrivateRoutes>
+        }
+      />
+      <Route
+        path="/admin"
+        element={
+          <PrivateRoutes>
+            <Admin />
           </PrivateRoutes>
         }
       />

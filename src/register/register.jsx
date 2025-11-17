@@ -87,7 +87,7 @@ export default function Register() {
   if (registered) {
     return (
       <div className="register-container">
-        <div className="register-form card-neon success-box">
+        <div className="register-form  success-box">
           <div className="success-icon" aria-hidden="true"></div>
           <h1 className="register-title">Sprawdź swoją skrzynkę</h1>
           <p className="success-text">
@@ -107,7 +107,7 @@ export default function Register() {
   }
   return (
     <div className="register-container">
-      <form onSubmit={handleRegister} className="register-form card-neon">
+      <form onSubmit={handleRegister} className="register-form ">
         <h1 className="register-title">Rejestracja</h1>
 
         <div className="register-fields">

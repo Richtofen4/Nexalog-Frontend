@@ -65,7 +65,7 @@ function Modal({ open, onClose, children }) {
         onClick={onClose}
       >
         <motion.div
-          className="modal card card-neon"
+          className="modal card "
           initial={{ scale: .96, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: .96, opacity: 0 }}
@@ -722,7 +722,7 @@ async function handleBlock(idUser) {
       <Navbar notifications={9} />
       <main className="home-page">
         {/* Lewa — znajomi */}
-        <aside className="home-left card card-neon">
+        <aside className="home-left card ">
           <header className="friends-head">
             <div className="friends-title">
               <Users size={18} />
@@ -851,7 +851,7 @@ async function handleBlock(idUser) {
         </aside>
 
         {/* Prawa — serwery */}
-        <section className="home-right card card-neon">
+        <section className="home-right card ">
           <div className="servers-head">
             <h2>Twoje serwery</h2>
 

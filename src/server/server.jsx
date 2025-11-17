@@ -5,6 +5,7 @@ import Navbar from "../navbar/navbar";
 import { expandLink } from "../fetches/expandLink";
 import "./server.css";
 import { io } from "socket.io-client";
+import JitsiMeeting from "./JitsiMeeting";
 
 import {
   Users, Plus, Edit3, Trash2, LogOut, KeyRound, RefreshCcw, ShieldCheck,
@@ -90,6 +91,12 @@ export default function ServerView() {
 
   // komunikaty
   const [err, setErr] = useState("");
+
+  // Jitsi
+  const [videoOpen, setVideoOpen] = useState(false);
+
+  // nazwa pokoju
+  const roomName = `nexalog-server-${serverId}`;
 
   // chat (REST)
   const [messages, setMessages] = useState([]);
@@ -447,7 +454,7 @@ export default function ServerView() {
         <main className="server-grid">
 
           {/* lewa - kanały */}
-          <aside className="server-left card card-neon">
+          <aside className="server-left card ">
             <header className="sect-head">
               <h2><Users size={18} /> Kanały</h2>
             </header>
@@ -506,7 +513,7 @@ export default function ServerView() {
           </aside>
 
           {/* chat kanałowy */}
-          <section className="server-center card card-neon">
+          <section className="server-center card ">
             <header className="sect-head">
               <h2>Chat</h2>
             </header>
@@ -554,15 +561,28 @@ export default function ServerView() {
           </section>
 
           {/* Prawa - członkowie*/}
-          <aside className="server-right card card-neon">
+          <aside className="server-right card ">
             <header className="sect-head">
               <div className="srv-title">
                 <img src={server?.icon_url || DEFAULT_SERVER_ICON} alt="" />
                 <div>
                   <h2 title={server?.name || "(serwer)"}>{server?.name || "(serwer)"}</h2>
-                  {isOwner && <div className="owner-pill"><ShieldCheck size={14} /> Właściciel</div>}
+                  {isOwner && (
+                    <div className="owner-pill">
+                      <ShieldCheck size={14} /> Właściciel
+                    </div>
+                  )}
                 </div>
               </div>
+
+              {/* Przycisk wideo */}
+              <button
+                type="button"
+                className="btn-video"
+                onClick={() => setVideoOpen(true)}
+              >
+                🎥 Wideo
+              </button>
             </header>
 
             {/* Kod zaproszenia */}
@@ -613,8 +633,21 @@ export default function ServerView() {
             </div>
           </aside>
         </main>
-        {err && <div style={{ maxWidth: 1200, margin: "8px auto", padding: "0 26px" }}><p className="err">{err}</p></div>}
+        {err && (
+          <div style={{ maxWidth: 1200, margin: "8px auto", padding: "0 26px" }}>
+            <p className="err">{err}</p>
+          </div>
+        )}
       </div>
+
+      {/* Okno Jitsi ponad całą stroną */}
+      {videoOpen && (
+        <JitsiMeeting
+          roomName={roomName}
+          displayName={me?.username || "Użytkownik"}
+          onClose={() => setVideoOpen(false)}
+        />
+      )}
       </>
       
       );
@@ -624,7 +657,7 @@ if (!validated) {
       <Navbar />
       <div className="server-page">
         <main className="server-grid">
-          <section className="server-center card card-neon">
+          <section className="server-center card ">
             <header className="sect-head"><h2>Chat kanałowy</h2></header>
             <div className="center-placeholder">
               <p className="muted">Wczytywanie…</p>

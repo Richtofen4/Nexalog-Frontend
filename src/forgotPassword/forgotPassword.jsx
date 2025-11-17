@@ -49,7 +49,7 @@ export default function ForgotPassword() {
     if (sent) {
         return (
             <div className="forgot-container">
-                <div className="forgot-form card-neon success-box">
+                <div className="forgot-form  success-box">
                     <div className="success-icon" aria-hidden="true"></div>
                     <h1 className="forgot-title">Sprawdź swoją skrzynkę</h1>
                     <p className="success-text">
@@ -70,7 +70,7 @@ export default function ForgotPassword() {
   
     return (
         <div className="forgot-container">
-            <form onSubmit={handleSubmit} className="forgot-form card-neon">
+            <form onSubmit={handleSubmit} className="forgot-form ">
                 <h1 className="forgot-title">Odzyskiwanie hasła</h1>
                 <div className="forgot-fields">
                     <div className={`field ${emailError ? "invalid" : ""}`}>

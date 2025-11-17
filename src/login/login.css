@@ -227,7 +227,7 @@ body {
     color: #86efac;
     text-shadow: 0 0 8px rgba(34, 197, 94, 0.6);
 }
-
+/*
 @property --a {
     syntax: '<angle>';
     initial-value: 0deg;
@@ -268,3 +268,4 @@ body {
     .card-neon::before { display: none; }
     .card-neon {box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.15 ) inset;}
 }
+    */

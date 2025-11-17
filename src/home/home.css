@@ -43,7 +43,7 @@ html, body { background:var(--bg); color:var(--fg); }
   justify-content: center;
   gap: 18px;
 }
-
+/*
 .home-page .card-neon::before{
   content:""; position:absolute; inset:-2px; border-radius:20px; padding:3px;
   background:
@@ -57,7 +57,7 @@ html, body { background:var(--bg); color:var(--fg); }
   animation:spin 5s linear infinite;
 }
 @keyframes spin{ to{ --a:360deg; } }
-
+*/
 .home-page .muted{ color:var(--muted); }
 .home-page .err{ color:#f87171; }
 .home-page .ok{ color:#86efac; }
@@ -234,7 +234,7 @@ html, body { background:var(--bg); color:var(--fg); }
     0 0 0 1px rgba(255,255,255,.02) inset;
   color: var(--fg);
 }
-
+/*
 .modal.card-neon::before{
   content:"";
   position:absolute;
@@ -252,7 +252,7 @@ html, body { background:var(--bg); color:var(--fg); }
   animation: modal-ring 5s linear infinite;
 }
 @keyframes modal-ring { to { --a: 360deg; } }
-
+*/
 /* nagłówek */
 .modal h3{
   margin: 0 0 18px 0;
@@ -533,4 +533,60 @@ html, body { background:var(--bg); color:var(--fg); }
   background: rgba(248,113,113,.08);
   border-color: rgba(248,113,113,.40);
   color: #fecaca;
+}
+
+/* Rozmowy */
+.jitsi-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 80;
+}
+
+.jitsi-window {
+  width: min(1200px, 100vw);
+  height: min(700px, 100vh);
+  background: #050505;
+  border-radius: 18px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+}
+
+.jitsi-close {
+  align-self: flex-end;
+  margin: 6px 10px 0 0;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: none;
+  background: #ef4444;
+  color: #fff;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.jitsi-container {
+  flex: 1;
+}
+
+/* Przycisk dołączenia do pokoju */
+.btn-video {
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: none;
+  background: #22c55e;
+  color: #000;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-video:hover {
+  background: #16a34a;
 }

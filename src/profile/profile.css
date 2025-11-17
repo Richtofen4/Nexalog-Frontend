@@ -59,6 +59,7 @@
 .profile-page .profile-right{ grid-area:right; min-height:440px; }
 
 /* neon */
+/*
 .profile-page .card-neon::before{
   content:""; position:absolute; inset:-2px;
   border-radius:19px; padding:4px;
@@ -73,7 +74,7 @@
   animation:neon-rot 5s linear infinite;
 }
 @keyframes neon-rot{ to{ --a:360deg; } }
-
+*/
 .profile-page h1,
 .profile-page h2{ margin:0 0 24px 0; }
 

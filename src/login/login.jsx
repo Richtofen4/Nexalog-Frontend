@@ -45,7 +45,7 @@ export default function Login() {
 
   return (
     <div className="login-container">
-      <form onSubmit={handleLogin} className="login-form card-neon">
+      <form onSubmit={handleLogin} className="login-form ">
         <h1 className="login-title">Logowanie</h1>
 
         <div className="login-fields">

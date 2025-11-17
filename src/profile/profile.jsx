@@ -181,7 +181,7 @@ export default function Profile() {
 
         <main className="profile-page">
 
-          <section className="profile-left profile-card card-neon">
+          <section className="profile-left profile-card ">
             <h1>Twój profil</h1>
 
             <form className="stack" onSubmit={handleSaveProfile}>
@@ -234,7 +234,7 @@ export default function Profile() {
             </form>
           </section>
 
-          <section className="profile-right profile-card card-neon">
+          <section className="profile-right profile-card ">
             <h2>Zmień hasło</h2>
 
             <form className="stack" onSubmit={handleChangePassword}>
