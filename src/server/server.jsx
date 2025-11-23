@@ -640,7 +640,6 @@ export default function ServerView() {
         )}
       </div>
 
-      {/* Okno Jitsi ponad całą stroną */}
       {videoOpen && (
         <JitsiMeeting
           roomName={roomName}

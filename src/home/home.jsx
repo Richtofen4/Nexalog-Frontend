@@ -719,7 +719,7 @@ async function handleBlock(idUser) {
 
   return (
     <div className="home-bg">
-      <Navbar notifications={9} />
+      <Navbar />
       <main className="home-page">
         {/* Lewa — znajomi */}
         <aside className="home-left card ">

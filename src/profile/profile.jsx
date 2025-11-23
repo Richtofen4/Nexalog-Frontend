@@ -177,7 +177,7 @@ export default function Profile() {
   return (
     <>
       <div className="profile-bg">
-        <Navbar notifications={2} />
+        <Navbar />
 
         <main className="profile-page">
 
