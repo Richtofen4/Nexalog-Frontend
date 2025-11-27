@@ -83,11 +83,14 @@ export default function ServerView() {
   // członkowie
   const [members, setMembers] = useState([]);
   const [busyMember, setBusyMember] = useState(false);
+  const [memberTab, setMemberTab] = useState("active");
 
   // kod zaproszenia
   const [inviteCode, setInviteCode] = useState("");
   const [showCode, setShowCode] = useState(false);
   const [busyCode, setBusyCode] = useState(false);
+  const [showCodeHelp, setShowCodeHelp] = useState(false);
+  const [showChannelsHelp, setShowChannelsHelp] = useState(false);
 
   // komunikaty
   const [err, setErr] = useState("");
@@ -105,46 +108,9 @@ export default function ServerView() {
   const [composer, setComposer] = useState("");
   const listRef = useRef(null);
   const justAppendedMineRef = useRef(false);
+  const initialScrollDoneRef = useRef(false);
 
   const [validated, setValidated] = useState(false);
-
-    // łapanie połączenia
-   useEffect(() => {
-     const { origin, path } = getSocketTarget();
-     const s = io(origin, {
-       path,
-       transports: ["websocket", "polling"],
-       withCredentials: true,
-       auth: { token: localStorage.getItem("token") || "" },
-     });
-     socketRef.current = s;
- 
-     // handler nowej wiadomości kanałowej
-     const onNew = (msg) => {
-       if (Number(msg?.ID_Channel) !== Number(currentChRef.current?.ID_Channel)) return;
-       const n = normalizeMsg(msg, me);
-       setMessages(prev => {
-         if (prev.some(p => p.ID_Channel_message === n.ID_Channel_message)) return prev; // de-dupe
-         return [...prev, n];
-       });
-       if (Number(n.user?.ID_USER) === Number(me?.ID_USER)) {
-         justAppendedMineRef.current = true;
-       }
-     };
- 
-     s.on("channel-message:new", onNew);
-     s.on("channel:new", onNew);
- 
-     s.on("connect", () => console.log("[socket] server.jsx connected", s.id, "path:", path));
-      s.on("connect_error", (err) => console.warn("[socket] connect_error:", err?.message || err));
- 
-     return () => {
-       s.off("channel-message:new", onNew);
-       s.off("channel:new", onNew);
-       s.disconnect();
-     };
-   }, [token, me?.ID_USER]);
-
 
   useEffect(() => {
     if (!Number.isInteger(serverId) || serverId <= 0) {
@@ -155,12 +121,23 @@ export default function ServerView() {
   }, [serverId]);
   
   useEffect(() => {
-    if (!listRef.current) return;
+  if (!listRef.current || !activeCh?.ID_Channel) return;
+
+    if (!initialScrollDoneRef.current && messages.length > 0) {
+      listRef.current.scrollTop = listRef.current.scrollHeight;
+      initialScrollDoneRef.current = true;
+      return;
+    }
+
     if (justAppendedMineRef.current) {
-      listRef.current.scrollTo({ top: listRef.current.scrollHeight, behavior: "smooth" });
+      listRef.current.scrollTo({
+        top: listRef.current.scrollHeight,
+        behavior: "smooth",
+      });
       justAppendedMineRef.current = false;
     }
-  }, [messages.length]);
+  }, [messages.length, activeCh?.ID_Channel]);
+
 
 
   useEffect(() => {
@@ -173,6 +150,7 @@ export default function ServerView() {
      if (s) {
        s.emit("channel:join", Number(activeCh.ID_Channel));
      }
+    initialScrollDoneRef.current = false;
     loadRecent();
    setTimeout(() => {
      if (listRef.current) listRef.current.scrollTop = listRef.current.scrollHeight;
@@ -186,6 +164,91 @@ export default function ServerView() {
       if (s && ch) s.emit("channel:leave", Number(ch));
     };
   }, []);
+
+  useEffect(() => {
+    const { origin, path } = getSocketTarget();
+    const s = io(origin, {
+      path,
+      transports: ["websocket", "polling"],
+      withCredentials: true,
+      auth: { token: localStorage.getItem("token") || "" },
+    });
+
+    socketRef.current = s;
+
+    const handleOnline = ({ userId }) => {
+      const uid = Number(userId);
+      if (!Number.isFinite(uid)) return;
+
+      console.log("[presence] online", uid);
+
+      setMembers(prev => {
+        let changed = false;
+        const next = prev.map(m => {
+          if (Number(m.ID_USER) === uid) {
+            changed = true;
+            return { ...m, online: true, status: "active" };
+          }
+          return m;
+        });
+        return changed ? next : prev;
+      });
+    };
+
+    const handleOffline = ({ userId }) => {
+      const uid = Number(userId);
+      if (!Number.isFinite(uid)) return;
+
+      console.log("[presence] offline", uid);
+
+      setMembers(prev => {
+        let changed = false;
+        const next = prev.map(m => {
+          if (Number(m.ID_USER) === uid) {
+            changed = true;
+            return { ...m, online: false, status: "inactive" };
+          }
+          return m;
+        });
+        return changed ? next : prev;
+      });
+    };
+
+    s.on("presence:online", handleOnline);
+    s.on("presence:offline", handleOffline);
+
+    s.on("connect", () => {
+      console.log("[socket] connected", s.id);
+      if (me?.ID_USER) {
+        const uid = Number(me.ID_USER);
+        if (Number.isFinite(uid)) {
+          s.emit("user:join", uid);
+          console.log("[socket] emit user:join", uid);
+        }
+      }
+    });
+
+  s.on("connect_error", (err) => {
+    console.warn("[socket] connect_error:", err?.message || err);
+  });
+
+  return () => {
+    if (me?.ID_USER) {
+      const uid = Number(me.ID_USER);
+      if (Number.isFinite(uid)) {
+        s.emit("user:leave", uid);
+        console.log("[socket] emit user:leave", uid);
+      }
+    }
+
+    s.off("presence:online", handleOnline);
+    s.off("presence:offline", handleOffline);
+
+    s.disconnect();
+  };
+}, [token, me?.ID_USER]);
+
+
 
   async function bootstrap() {
     try {
@@ -446,7 +509,16 @@ export default function ServerView() {
     }
   }
 
-  const myId = Number(me?.ID_USER);
+const myId = Number(me?.ID_USER);
+const activeMembers = members.filter(
+  m => m.online && Number(m.ID_USER) !== myId
+);
+const inactiveMembers = members.filter(
+  m => !m.online && Number(m.ID_USER) !== myId
+);
+const visibleMembers = memberTab === "active" ? activeMembers : inactiveMembers;
+
+
 
   const ui = (
       <><Navbar />
@@ -456,8 +528,33 @@ export default function ServerView() {
           {/* lewa - kanały */}
           <aside className="server-left card ">
             <header className="sect-head">
-              <h2><Users size={18} /> Kanały</h2>
-            </header>
+            <h2><Users size={18} /> Kanały</h2>
+
+            <div className="help-wrapper">
+            <button
+              type="button"
+              className="help-icon"
+              onClick={() => setShowChannelsHelp(v => !v)}
+              aria-label="Co to są kanały?"
+            >
+              ?
+            </button>
+
+            {showChannelsHelp && (
+              <div className="help-popover">
+                <p>
+                  Kanały pozwalają podzielić rozmowy na różne tematy – np. ogólny,
+                  gry, muzyka, ogłoszenia.
+                </p>
+                <p>
+                  Dzięki temu wiadomości się nie mieszają, a każdy może pisać
+                  w odpowiednim miejscu.
+                </p>
+              </div>
+            )}
+          </div>
+
+          </header>
 
             {/* tworzenie kanału */}
             {isOwner && (
@@ -513,9 +610,60 @@ export default function ServerView() {
           </aside>
 
           {/* chat kanałowy */}
-          <section className="server-center card ">
-            <header className="sect-head">
+           <section className="server-center card ">
+            <header className="sect-head chat-headline">
               <h2>Chat</h2>
+
+              {isOwner && (
+                <div className="invite-inline">
+                  <KeyRound size={16} />
+                  <code className="invite">
+                    {busyCode ? "…" : (showCode ? (inviteCode || "(brak)") : "(ukryty)")}
+                  </code>
+                  <button
+                    className="btn sm ghost"
+                    disabled={busyCode}
+                    onClick={async () => {
+                      if (!inviteCode) { await fetchCode(); }
+                      setShowCode(v => !v);
+                    }}
+                    type="button"
+                  >
+                    {showCode ? "Ukryj" : "Pokaż"}
+                  </button>
+                  <button
+                    className="btn sm"
+                    onClick={regenerateCode}
+                    disabled={busyCode}
+                    type="button"
+                  >
+                    <RefreshCcw size={16} /> Zmień
+                  </button>
+
+                  <div className="help-wrapper">
+                  <button
+                    type="button"
+                    className="help-icon"
+                    onClick={() => setShowCodeHelp(v => !v)}
+                    aria-label="Co to jest kod zaproszenia?"
+                  >
+                    ?
+                  </button>
+
+                  {showCodeHelp && (
+                    <div className="help-popover">
+                      <p>
+                        Ten kod możesz przekazać znajomemu, aby dołączył do tego serwera.
+                      </p>
+                      <p>
+                        Wystarczy, że w swoim panelu głównym wybierze przycisk
+                        <b> „Dołącz”</b> i wklei tutaj ten kod.
+                      </p>
+                    </div>
+                  )}
+                </div>
+                </div>
+              )}
             </header>
             {activeCh ? (
               <div className="chat-wrap">
@@ -585,46 +733,53 @@ export default function ServerView() {
               </button>
             </header>
 
-            {/* Kod zaproszenia */}
-            {isOwner && (
-              <div className="invite-box">
-                <div className="row">
-                  <KeyRound size={16} />
-                  <code className="invite">
-                    {busyCode ? "…" : (showCode ? (inviteCode || "(brak)") : "(brak)")}
-                  </code>
-                  <button
-                  className="btn sm ghost"
-                  disabled={busyCode}
-                  onClick={async () => {
-                    if (!inviteCode) { await fetchCode(); }
-                    setShowCode(v => !v);
-                  }}
-                  >
-                {showCode ? "Ukryj" : "Pokaż"}
-                </button>
-                  <button className="btn sm" onClick={regenerateCode} disabled={busyCode}>
-                    <RefreshCcw size={16} /> Zmień
-                  </button>
-                </div>
+            {/* Użytkownicy serwera + zakładki */}
+            <div className="members-head">
+              <div className="members-title">
+                <span>Użytkownicy serwera</span>
               </div>
-            )}
+              <div className="pill-tabs">
+                <button
+                  type="button"
+                  className={`pill-tab ${memberTab === "active" ? "is-active" : ""}`}
+                  onClick={() => setMemberTab("active")}
+                >
+                  Aktywni
+                </button>
+                <button
+                  type="button"
+                  className={`pill-tab ${memberTab === "inactive" ? "is-active" : ""}`}
+                  onClick={() => setMemberTab("inactive")}
+                >
+                  Nieaktywni
+                </button>
+              </div>
+            </div>
 
             {/* Lista członków */}
             <div className="members-list">
-              {members.length === 0 ? (
-                <p className="muted">Brak członków.</p>
-              ) : members.map(m => (
+              {visibleMembers.length === 0 ? (
+                <p className="muted">
+                  {memberTab === "active" ? "Brak aktywnych członków." : "Brak nieaktywnych członków."}
+                </p>
+              ) : visibleMembers.map(m => (
                 <div key={m.ID_USER} className="member-row">
                   <img src={m.avatar} alt="" className="avatar" />
-                  <div className="name" title={m.username}>{m.username}</div>
+                  <div className="name" title={m.username}>
+                    {m.username}
+                    {m.online && <span className="online-dot" />}
+                  </div>
 
                   {Number(m.ID_USER) === myId ? (
                     <button className="btn sm ghost" onClick={leaveServer}>
                       <LogOut size={16} /> Opuść
                     </button>
                   ) : isOwner ? (
-                    <button className="btn sm danger" disabled={busyMember} onClick={() => kickUser(m.ID_USER)}>
+                    <button
+                      className="btn sm danger"
+                      disabled={busyMember}
+                      onClick={() => kickUser(m.ID_USER)}
+                    >
                       <Trash2 size={16} /> Wyrzuć
                     </button>
                   ) : null}

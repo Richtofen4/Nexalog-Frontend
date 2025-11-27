@@ -11,7 +11,7 @@ import "./home.css";
 
 import {
   Users, Hourglass, Ban, UserPlus, ChevronLeft, ChevronRight, Plus,
-  X, Search, LogIn, Check, Clock, Unlock, KeyRound, ArrowLeft, Send
+  X, Search, LogIn, Check, Clock, Unlock, KeyRound, ArrowLeft, Send, HelpCircle, 
 } from "lucide-react";
 
 function ErrorBoundary({ children }) {
@@ -96,7 +96,7 @@ function Home() {
   );
 
   // ---- FRIENDS
-  const [friendTab, setFriendTab] = useState("accepted");
+  const [friendTab, setFriendTab] = useState("all");
   const [friends, setFriends]           = useState([]);
   const [friendsTotal, setFriendsTotal] = useState(0);
   const [friendPage, setFriendPage]     = useState(0);
@@ -130,6 +130,7 @@ function Home() {
   const [joinBusy, setJoinBusy] = useState(false);
   const [joinErr,  setJoinErr]  = useState("");
   const [joinMsg,  setJoinMsg]  = useState("");
+  const [showServersHelp, setShowServersHelp] = useState(false);
 
   //SOCKET.IO
   const socketRef   = useRef(null);
@@ -193,7 +194,7 @@ useEffect(() => {
     setFriendPage(0);
 
     const existsOnPage = friends.some(f => Number(f.user?.ID_USER) === Number(otherUserId));
-    if (!existsOnPage && friendTab === "accepted") {
+    if (!existsOnPage && friendTab === "all") {
       loadAcceptedPage(0);
     }
   }
@@ -577,22 +578,19 @@ async function handleBlock(idUser) {
   // Lewa kolumna(wygląd)
   const switchTab = (tab) => {
     setFriendTab(tab);
-    if (tab === "accepted") loadAcceptedPage(0);
+    if (tab === "all") loadAcceptedPage(0);
     else setFriendPage(0);
   };
 
-  const activeFriends =
-    friendTab === "accepted" ? friends :
-    friendTab === "pending"  ? pending :
-    friendTab === "blocked"  ? blocked : [];
+  const activeFriends = friendTab === "all" ? friends : blocked;
 
   const friendPages =
-    friendTab === "accepted"
+    friendTab === "all"
       ? Math.max(1, Math.ceil(friendsTotal / FRIEND_PAGE_SIZE))
       : Math.max(1, Math.ceil(activeFriends.length / FRIENDS_PER_PAGE));
 
   const pageFriends =
-    friendTab === "accepted"
+    friendTab === "all"
       ? activeFriends
       : activeFriends.slice(
           friendPage * FRIENDS_PER_PAGE,
@@ -601,12 +599,13 @@ async function handleBlock(idUser) {
 
   const friendsPrev = () => {
     if (friendPage === 0) return;
-    if (friendTab === "accepted") loadAcceptedPage(friendPage - 1);
+    if (friendTab === "all") loadAcceptedPage(friendPage - 1);
     else setFriendPage(p => Math.max(0, p - 1));
   };
+
   const friendsNext = () => {
     if (friendPage >= friendPages - 1) return;
-    if (friendTab === "accepted") loadAcceptedPage(friendPage + 1);
+    if (friendTab === "all") loadAcceptedPage(friendPage + 1);
     else setFriendPage(p => Math.min(friendPages - 1, p + 1));
   };
 
@@ -724,153 +723,160 @@ async function handleBlock(idUser) {
         {/* Lewa — znajomi */}
         <aside className="home-left card ">
           <header className="friends-head">
-            <div className="friends-title">
-              <Users size={18} />
-              <h2>Twoi znajomi</h2>
-            </div>
-
-            <div className="friends-pager pager">
-              <button className="icon-btn" onClick={friendsPrev} disabled={friendPage === 0}>
-                <ChevronLeft size={18} />
-              </button>
-              <span className="muted">Strona {friendPage + 1} / {friendPages}</span>
-              <button className="icon-btn" onClick={friendsNext} disabled={friendPage >= friendPages - 1}>
-                <ChevronRight size={18} />
-              </button>
-            </div>
-          </header>
-
-          <div className="home-tabs">
-            <TabButton icon={Users}     active={friendTab === "accepted"} onClick={() => switchTab("accepted")}>Znajomi</TabButton>
-            <TabButton icon={Hourglass} active={friendTab === "pending"}  onClick={() => switchTab("pending")}>Oczekujące</TabButton>
-            <TabButton icon={Ban}       active={friendTab === "blocked"}  onClick={() => switchTab("blocked")}>Zbanowani</TabButton>
-            <TabButton icon={UserPlus}  active={friendTab === "add"}      onClick={() => switchTab("add")}>Dodaj</TabButton>
+          <div className="friends-title">
+            <Users size={18} />
+            <h2>Zarejestrowani Użytkownicy</h2>
           </div>
 
+          <div className="friends-pager pager">
+          <button className="icon-btn" onClick={friendsPrev} disabled={friendPage === 0}>
+            <ChevronLeft size={16} />
+            <span className="pager-arrow">&lt;</span>
+          </button>
+          <span className="muted">Strona {friendPage + 1} / {friendPages}</span>
+          <button className="icon-btn" onClick={friendsNext} disabled={friendPage >= friendPages - 1}>
+            <span className="pager-arrow">&gt;</span>
+            <ChevronRight size={16} />
+          </button>
+        </div>
+        </header>
+
+        <div className="home-tabs">
+          <TabButton
+            icon={Users}
+            active={friendTab === "all"}
+            onClick={() => switchTab("all")}
+          >
+            Wszyscy
+          </TabButton>
+          <TabButton
+            icon={Ban}
+            active={friendTab === "blocked"}
+            onClick={() => switchTab("blocked")}
+          >
+            Zbanowani
+          </TabButton>
+        </div>
+
+
           <div className="home-friends">
-            {loadingFriends && <p className="muted">Wczytywanie…</p>}
-            {!!friendsErr && <p className="err">{friendsErr}</p>}
+          {/* Wszyscy użytkownicy */}
+          {friendTab === "all" && !loadingFriends && (
+            friends.length === 0 ? (
+              <p className="muted">Brak innych użytkowników.</p>
+            ) : (
+              pageFriends.map((f) => (
+                <FriendRow
+                  key={f.user?.ID_USER}
+                  user={f.user}
+                  onClick={() => openChat(f.user)}
+                />
+              ))
+            )
+          )}
 
-            {friendTab === "accepted" && !loadingFriends && (
-              friends.length === 0 ? (
-                <p className="muted">Brak znajomych</p>
-              ) : (
-                pageFriends.map(f => (
-                  <FriendRow
-                    key={f.friendshipId || f.FriendshipId || f.user?.ID_USER}
-                    user={f.user}
-                    onClick={() => openChat(f.user)}
-                  />
-                ))
-              )
-            )}
+          {/* Zbanowani */}
+          {friendTab === "blocked" && !loadingFriends && (
+            activeFriends.length === 0 ? (
+              <p className="muted">Lista pusta</p>
+            ) : (
+              pageFriends.map((b) => (
+                <FriendRow
+                  key={b.id}
+                  user={b.user}
+                  disabled
+                  rowClass={b.youBlocked ? "you-blocked" : "blocked-me"}
+                  footer={
+                    b.youBlocked ? (
+                      <div className="actions">
+                        <button
+                          className="action-btn ok"
+                          onClick={() => handleUnban(b.user.ID_USER)}
+                        >
+                          <Unlock size={16} /> Odblokuj
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="status danger">
+                        <Ban size={14} /> Zablokował Cię
+                      </div>
+                    )
+                  }
+                />
+              ))
+            )
+          )}
 
-            {friendTab === "pending" && !loadingFriends && (
-              activeFriends.length === 0 ? (
-                <p className="muted">Brak oczekujących zaproszeń</p>
-              ) : (
-                pageFriends.map(req => (
-                  <FriendRow
-                    key={req.id}
-                    user={req.user}
-                    disabled
-                    footer={
-                      req.direction === "incoming" ? (
-                        <div className="actions">
-                          <button
-                            className="action-btn ok"
-                            onClick={() => handleAccept(req.user.ID_USER)}
-                          >
-                            <Check size={16}/> Akceptuj
-                          </button>
-                          <button
-                            className="action-btn danger"
-                            onClick={() => handleReject(req.user.ID_USER)}
-                          >
-                            <X size={16}/> Odrzuć
-                          </button>
-                        </div>
-                      ) : (
-                        <div className="status muted">
-                          <Clock size={14}/> Oczekuje na akceptację
-                        </div>
-                      )
-                    }
-                  />
-                ))
-              )
-            )}
-
-            {friendTab === "blocked" && !loadingFriends && (
-              activeFriends.length === 0 ? (
-                <p className="muted">Lista pusta</p>
-              ) : (
-                pageFriends.map(b => (
-                  <FriendRow
-                    key={b.id}
-                    user={b.user}
-                    disabled
-                    rowClass={b.youBlocked ? "you-blocked" : "blocked-me"}
-                    footer={
-                      b.youBlocked ? (
-                        <div className="actions">
-                          <button
-                            className="action-btn ok"
-                            onClick={() => handleUnban(b.user.ID_USER)}
-                          >
-                            <Unlock size={16}/> Odblokuj
-                          </button>
-                        </div>
-                      ) : (
-                        <div className="status danger">
-                          <Ban size={14}/> Zablokował Cię
-                        </div>
-                      )
-                    }
-                  />
-                ))
-              )
-            )}
-
-            {friendTab === "add" && (
-              <form className="add-box" onSubmit={handleAddFriend}>
-                <div className="search">
-                  <Search size={16} />
-                  <input
-                    value={searchName}
-                    onChange={(e) => setSearchName(e.target.value)}
-                    placeholder="Nazwa użytkownika"
-                  />
-                </div>
-                <button className="btn" disabled={!canAdd}>Wyślij zaproszenie</button>
-                {addErr && <p className="err">{addErr}</p>}
-                {addMsg && <p className="ok">{addMsg}</p>}
-              </form>
-            )}
           </div>
         </aside>
 
         {/* Prawa — serwery */}
         <section className="home-right card ">
           <div className="servers-head">
+            <div className="servers-title">
             <h2>Twoje serwery</h2>
+            <button
+              type="button"
+              className="help-icon"
+              onClick={() => setShowServersHelp(v => !v)}
+              aria-label="Co to są serwery?"
+            >
+              ?
+            </button>
+
+            {showServersHelp && (
+              <div className="help-popover">
+                <p>
+                  Serwer to Twoja własna przestrzeń na Nexalogu. Na serwerze możesz:
+                </p>
+                <ul>
+                  <li>tworzyć kanały tekstowe i głosowe dla różnych tematów,</li>
+                  <li>zapraszać innych użytkowników za pomocą kodu serwera,</li>
+                  <li>organizować rozmowy na czacie oraz wideokonferencje.</li>
+                </ul>
+                <p style={{ marginTop: 6 }}>
+                  Możesz utworzyć nowy serwer przyciskiem <b>Stwórz serwer</b> lub
+                  dołączyć do istniejącego, jeśli właściciel poda Ci kod zaproszenia
+                  (przycisk <b>Dołącz</b>).
+                </p>
+              </div>
+            )}
+          </div>
+
 
             <div className="pager">
-              <button className="icon-btn" onClick={goPrev} disabled={serverPage === 0}>
-                <ChevronLeft size={18} />
-              </button>
-              <span className="muted">Strona {serverPage + 1} / {serverPages}</span>
-              <button className="icon-btn" onClick={goNext} disabled={serverPage >= serverPages - 1}>
-                <ChevronRight size={18} />
-              </button>
-            </div>
+            <button className="icon-btn" onClick={goPrev} disabled={serverPage === 0}>
+              <ChevronLeft size={16} />
+              <span className="pager-arrow">&lt;</span>
+            </button>
+            <span className="muted">Strona {serverPage + 1} / {serverPages}</span>
+            <button className="icon-btn" onClick={goNext} disabled={serverPage >= serverPages - 1}>
+              <span className="pager-arrow">&gt;</span>
+              <ChevronRight size={16} />
+            </button>
+          </div>
 
             <div className="servers-actions">
-              <button className="btn sm ghost" onClick={() => setShowJoin(true)} type="button">
-                <KeyRound size={16} /> <span>Dołącz</span>
-              </button>
-            </div>
+            <button
+              className="btn sm"
+              onClick={() => setShowCreate(true)}
+              type="button"
+            >
+              <Plus size={16} />
+              <span>Stwórz serwer</span>
+            </button>
+
+            <button
+              className="btn sm ghost"
+              onClick={() => setShowJoin(true)}
+              type="button"
+            >
+              <KeyRound size={16} />
+              <span>Dołącz</span>
+            </button>
           </div>
+          </div>
+
 
           {!!serversErr && <p className="err">{serversErr}</p>}
 
@@ -899,9 +905,6 @@ async function handleBlock(idUser) {
             </div>
           )}
 
-          <button className="fab" onClick={() => setShowCreate(true)} type="button">
-            <Plus size={20} />
-          </button>
         </section>
       </main>
 
@@ -1073,7 +1076,6 @@ function EmptyServers({ onCreate }) {
   return (
     <div className="empty-servers">
       <p className="muted">Nie masz jeszcze żadnych serwerów.</p>
-      <button className="btn" onClick={onCreate}><Plus size={16} /> Stwórz pierwszy</button>
     </div>
   );
 }
