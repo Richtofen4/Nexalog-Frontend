@@ -165,7 +165,7 @@ export default function ServerView() {
     };
   }, []);
 
-  useEffect(() => {
+    useEffect(() => {
     const { origin, path } = getSocketTarget();
     const s = io(origin, {
       path,
@@ -176,15 +176,36 @@ export default function ServerView() {
 
     socketRef.current = s;
 
+    // --- CHAT: nowa wiadomość kanałowa ---
+    const handleNewMessage = (msg) => {
+      // tylko gdy to wiadomość z aktualnie otwartego kanału
+      if (Number(msg?.ID_Channel) !== Number(currentChRef.current?.ID_Channel)) return;
+
+      const n = normalizeMsg(msg, me);
+
+      setMessages((prev) => {
+        // de-dupe po ID (żeby REST + socket nie dublowały)
+        if (prev.some((p) => p.ID_Channel_message === n.ID_Channel_message)) {
+          return prev;
+        }
+        return [...prev, n];
+      });
+
+      if (Number(n.user?.ID_USER) === Number(me?.ID_USER)) {
+        justAppendedMineRef.current = true;
+      }
+    };
+
+    // --- PRESENCE: online/offline ---
     const handleOnline = ({ userId }) => {
       const uid = Number(userId);
       if (!Number.isFinite(uid)) return;
 
       console.log("[presence] online", uid);
 
-      setMembers(prev => {
+      setMembers((prev) => {
         let changed = false;
-        const next = prev.map(m => {
+        const next = prev.map((m) => {
           if (Number(m.ID_USER) === uid) {
             changed = true;
             return { ...m, online: true, status: "active" };
@@ -201,9 +222,9 @@ export default function ServerView() {
 
       console.log("[presence] offline", uid);
 
-      setMembers(prev => {
+      setMembers((prev) => {
         let changed = false;
-        const next = prev.map(m => {
+        const next = prev.map((m) => {
           if (Number(m.ID_USER) === uid) {
             changed = true;
             return { ...m, online: false, status: "inactive" };
@@ -214,11 +235,17 @@ export default function ServerView() {
       });
     };
 
+    // rejestracja handlerów
+    s.on("channel-message:new", handleNewMessage);
+    s.on("channel:new", handleNewMessage); // jeśli backend emituje pod tą nazwą
+
     s.on("presence:online", handleOnline);
     s.on("presence:offline", handleOffline);
 
     s.on("connect", () => {
       console.log("[socket] connected", s.id);
+
+      // zgłoszenie obecności
       if (me?.ID_USER) {
         const uid = Number(me.ID_USER);
         if (Number.isFinite(uid)) {
@@ -226,27 +253,38 @@ export default function ServerView() {
           console.log("[socket] emit user:join", uid);
         }
       }
+
+      // ewentualnie dołączenie do aktualnego kanału po reconnect
+      const ch = currentChRef.current?.ID_Channel;
+      if (ch) {
+        s.emit("channel:join", Number(ch));
+        console.log("[socket] rejoin chan:", ch);
+      }
     });
 
-  s.on("connect_error", (err) => {
-    console.warn("[socket] connect_error:", err?.message || err);
-  });
+    s.on("connect_error", (err) => {
+      console.warn("[socket] connect_error:", err?.message || err);
+    });
 
-  return () => {
-    if (me?.ID_USER) {
-      const uid = Number(me.ID_USER);
-      if (Number.isFinite(uid)) {
-        s.emit("user:leave", uid);
-        console.log("[socket] emit user:leave", uid);
+
+    return () => {
+      if (me?.ID_USER) {
+        const uid = Number(me.ID_USER);
+        if (Number.isFinite(uid)) {
+          s.emit("user:leave", uid);
+          console.log("[socket] emit user:leave", uid);
+        }
       }
-    }
 
-    s.off("presence:online", handleOnline);
-    s.off("presence:offline", handleOffline);
+      s.off("channel-message:new", handleNewMessage);
+      s.off("channel:new", handleNewMessage);
+      s.off("presence:online", handleOnline);
+      s.off("presence:offline", handleOffline);
 
-    s.disconnect();
-  };
-}, [token, me?.ID_USER]);
+      s.disconnect();
+    };
+  }, [token, me?.ID_USER]);
+
 
 
 
