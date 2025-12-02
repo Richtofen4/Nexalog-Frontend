@@ -105,6 +105,7 @@ function Home() {
   const [chatActionBusy, setChatActionBusy] = useState(false);
   const [loadingFriends, setLoadingFriends] = useState(false);
   const [friendsErr, setFriendsErr]         = useState("");
+  const [friendFilter, setFriendFilter] = useState("");
 
   // dodaj friend
   const [searchName, setSearchName] = useState("");
@@ -584,15 +585,25 @@ async function handleBlock(idUser) {
 
   const activeFriends = friendTab === "all" ? friends : blocked;
 
+  const friendFilterNorm = friendFilter.trim().toLowerCase();
+
+  const filteredFriends = friendFilterNorm
+    ? activeFriends.filter((f) =>
+        (f.user?.username || "")
+          .toLowerCase()
+          .includes(friendFilterNorm)
+      )
+    : activeFriends;
+
   const friendPages =
     friendTab === "all"
       ? Math.max(1, Math.ceil(friendsTotal / FRIEND_PAGE_SIZE))
-      : Math.max(1, Math.ceil(activeFriends.length / FRIENDS_PER_PAGE));
+      : Math.max(1, Math.ceil(filteredFriends.length / FRIENDS_PER_PAGE));
 
   const pageFriends =
     friendTab === "all"
-      ? activeFriends
-      : activeFriends.slice(
+      ? filteredFriends
+      : filteredFriends.slice(
           friendPage * FRIENDS_PER_PAGE,
           friendPage * FRIENDS_PER_PAGE + FRIENDS_PER_PAGE
         );
@@ -758,6 +769,15 @@ async function handleBlock(idUser) {
           </TabButton>
         </div>
 
+          <div className="search">
+          <Search size={16} />
+          <input
+            type="text"
+            placeholder="Szukaj użytkownika…"
+            value={friendFilter}
+            onChange={(e) => setFriendFilter(e.target.value)}
+          />
+        </div>
 
           <div className="home-friends">
           {/* Wszyscy użytkownicy */}

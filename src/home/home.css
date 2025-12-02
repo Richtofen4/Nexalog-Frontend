@@ -704,3 +704,8 @@ html, body { background:var(--bg); color:var(--fg); }
 .home-page .help-popover li{
   margin-bottom: 3px;
 }
+
+.home-page .search svg {
+  flex-shrink: 0;
+  opacity: .7;
+}
