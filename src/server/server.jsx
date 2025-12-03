@@ -315,7 +315,6 @@ export default function ServerView() {
 
       await reloadChannels();
       setValidated(true);
-      if (isOwn) await fetchCode();
     } catch (e) {
       const code = e?.response?.status;
       if (code === 403 || code === 404) {
@@ -521,13 +520,13 @@ export default function ServerView() {
         { headers: { ...headers, "Content-Type": "application/json" } }
       );
       setInviteCode(r.data?.server?.code ?? "");
-      setShowCode(true);
     } catch (e) {
-      
+
     } finally {
       setBusyCode(false);
     }
   }
+
 
   async function regenerateCode() {
     if (!window.confirm("Wygenerować nowy kod zaproszenia? Poprzedni przestanie działać.")) return;
@@ -538,14 +537,16 @@ export default function ServerView() {
         { serverId },
         { headers: { ...headers, "Content-Type": "application/json" } }
       );
+
       setInviteCode(r.data?.code || r.data?.inviteCode || "");
-      setShowCode(true);
+      setShowCode(false);
     } catch (e) {
       alert(e?.response?.data?.message || "Nie udało się wygenerować nowego kodu.");
     } finally {
       setBusyCode(false);
     }
   }
+
 
 const myId = Number(me?.ID_USER);
 const activeMembers = members.filter(

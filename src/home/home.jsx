@@ -35,7 +35,7 @@ class ErrorCatcher extends React.Component {
 }
 
 // USTAWIENIA UI 
-const SERVERS_PER_PAGE  = 6;
+const SERVERS_PER_PAGE  = 9;
 const FRIEND_PAGE_SIZE  = 5;
 const FRIENDS_PER_PAGE  = 8;
 
@@ -405,11 +405,18 @@ useEffect(() => {
     refreshServers();
   }, []);
 
-  async function loadAcceptedPage(page = 0) {
+  async function loadAcceptedPage(page = 0, search = "") {
+    const q = search.trim();
+    const params = new URLSearchParams();
+    params.set("page", page);
+    params.set("limit", FRIEND_PAGE_SIZE);
+    if (q) params.set("q", q);
+
     const res = await axios.get(
-      expandLink(`/api/friends/myFriends?page=${page}&limit=${FRIEND_PAGE_SIZE}`),
+      expandLink(`/api/friends/myFriends?${params.toString()}`),
       { headers }
     );
+
     setFriends(res.data?.friends ?? []);
     setFriendsTotal(
       typeof res.data?.totalItems === "number"
@@ -423,7 +430,7 @@ useEffect(() => {
     try {
       setLoadingFriends(true);
       setFriendsErr("");
-      await loadAcceptedPage(0);
+      await loadAcceptedPage(0, friendFilter);
 
       const p = await axios.get(expandLink(`/api/friends/myFriendPending`), { headers });
       const incoming = Array.isArray(p.data?.incoming) ? p.data.incoming : [];
@@ -579,21 +586,25 @@ async function handleBlock(idUser) {
   // Lewa kolumna(wygląd)
   const switchTab = (tab) => {
     setFriendTab(tab);
-    if (tab === "all") loadAcceptedPage(0);
-    else setFriendPage(0);
+    if (tab === "all") {
+      loadAcceptedPage(0, friendFilter);
+    } else {
+      setFriendPage(0);
+    }
   };
 
   const activeFriends = friendTab === "all" ? friends : blocked;
 
-  const friendFilterNorm = friendFilter.trim().toLowerCase();
+  let filteredFriends = activeFriends;
 
-  const filteredFriends = friendFilterNorm
-    ? activeFriends.filter((f) =>
-        (f.user?.username || "")
-          .toLowerCase()
-          .includes(friendFilterNorm)
-      )
-    : activeFriends;
+  if (friendTab === "blocked") {
+    const friendFilterNorm = friendFilter.trim().toLowerCase();
+    filteredFriends = friendFilterNorm
+      ? activeFriends.filter((f) =>
+          (f.user?.username || "").toLowerCase().includes(friendFilterNorm)
+        )
+      : activeFriends;
+  }
 
   const friendPages =
     friendTab === "all"
@@ -610,15 +621,20 @@ async function handleBlock(idUser) {
 
   const friendsPrev = () => {
     if (friendPage === 0) return;
-    if (friendTab === "all") loadAcceptedPage(friendPage - 1);
+    if (friendTab === "all") loadAcceptedPage(friendPage - 1, friendFilter);
     else setFriendPage(p => Math.max(0, p - 1));
   };
 
   const friendsNext = () => {
     if (friendPage >= friendPages - 1) return;
-    if (friendTab === "all") loadAcceptedPage(friendPage + 1);
+    if (friendTab === "all") loadAcceptedPage(friendPage + 1, friendFilter);
     else setFriendPage(p => Math.min(friendPages - 1, p + 1));
   };
+
+  useEffect(() => {
+    if (friendTab !== "all") return;
+    loadAcceptedPage(0, friendFilter);
+  }, [friendFilter, friendTab]);
 
   // Prawa kolumna(wygląd)
   const serverPages = Math.max(1, Math.ceil(servers.length / SERVERS_PER_PAGE));
@@ -929,40 +945,43 @@ async function handleBlock(idUser) {
       </main>
 
       {/* Model czatu */}
-<Modal open={!!chatPeer} onClose={closeChat}>
-  <div className="chat-head">
-    <button className="icon-btn" onClick={closeChat} title="Zamknij">
-      <ArrowLeft size={18} />
-    </button>
+      <Modal open={!!chatPeer} onClose={closeChat}>
+        <div className="chat-head">
+          <button className="icon-btn" onClick={closeChat} title="Zamknij">
+            <ArrowLeft size={18} />
+          </button>
 
-    <div className="chat-peer">
-      <img className="friend-avatar" src={chatPeer?.avatar} alt="" />
-      <h3 style={{ margin: 0 }}>{chatPeer?.username}</h3>
-    </div>
+          <div className="chat-peer-wrap">
+            <div className="chat-peer">
+              <img className="pc-avatar" src={chatPeer?.avatar} alt="" />
+              <h3 className="pc-name">{chatPeer?.username}</h3>
+            </div>
 
-    <div style={{ marginLeft: "auto", display: "flex", gap: 8 }}>
-      {youBlockedThisPeer ? (
-        <button
-          className="icon-btn"
-          onClick={() => handleUnban(chatPeer.ID_USER)}
-          disabled={chatActionBusy}
-          title="Odblokuj użytkownika"
-        >
-          <Unlock size={18} />
-        </button>
-      ) : (
-        <button
-          className="icon-btn"
-          onClick={() => handleBlock(chatPeer.ID_USER)}
-          disabled={chatActionBusy}
-          title="Zablokuj użytkownika"
-        >
-          <Ban size={18} />
-        </button>
-      )}
-    </div>
-  </div>
-
+            <div className="chat-actions">
+              {youBlockedThisPeer ? (
+                <button
+                  className="pc-block-btn"
+                  onClick={() => handleUnban(chatPeer.ID_USER)}
+                  disabled={chatActionBusy}
+                  type="button"
+                >
+                  <Unlock size={18} style={{ marginRight: 6 }} />
+                  Odblokuj użytkownika
+                </button>
+              ) : (
+                <button
+                  className="pc-block-btn"
+                  onClick={() => handleBlock(chatPeer.ID_USER)}
+                  disabled={chatActionBusy}
+                  type="button"
+                >
+                  <Ban size={18} style={{ marginRight: 6 }} />
+                  Zablokuj użytkownika
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
 
         {chatErr && <p className="err" style={{ marginTop: 8 }}>{chatErr}</p>}
 
